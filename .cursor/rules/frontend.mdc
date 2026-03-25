@@ -1,45 +1,45 @@
 ---
-description: Next.js frontend conventions — code should be readable by backend engineers
+description: Next.js 前端规范 — 代码应该让后端工程师也能读懂
 globs: ["frontend/**/*.ts", "frontend/**/*.tsx", "frontend/**/*.css", "frontend/**/*.json"]
 ---
 
-# Frontend Rules
+# Frontend Rules（前端规范）
 
-> Goal: Write frontend code that a backend engineer can understand and review.
+> 目标：写出后端工程师也能理解和 review 的前端代码
 
-## Tech Stack
+## 技术栈
 - Next.js 15 (App Router), TypeScript strict mode, Tailwind CSS v4, shadcn/ui
-- Data fetching: TanStack Query (React Query)
-- Forms: react-hook-form + zod validation
-- State: React context / zustand (only if needed)
+- 数据获取: TanStack Query (React Query)
+- 表单: react-hook-form + zod validation
+- 状态管理: React context / zustand (仅在必要时使用)
 
-## Project Structure
+## 项目结构
 ```
 frontend/
 ├── src/
-│   ├── app/                  # Next.js App Router pages
+│   ├── app/                  # Next.js App Router 页面
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   └── (auth)/
 │   │       └── login/page.tsx
 │   ├── components/
-│   │   ├── ui/               # shadcn/ui components (auto-generated)
-│   │   └── [feature]/        # feature-specific components
+│   │   ├── ui/               # shadcn/ui 组件 (自动生成)
+│   │   └── [feature]/        # 特定功能的组件
 │   ├── lib/
-│   │   ├── api.ts            # API client (fetch wrapper)
-│   │   ├── api-types.ts      # AUTO-GENERATED from OpenAPI — DO NOT EDIT
+│   │   ├── api.ts            # API 客户端 (fetch 封装)
+│   │   ├── api-types.ts      # 从 OpenAPI 自动生成 — 禁止手动编辑
 │   │   └── utils.ts
-│   ├── hooks/                # Custom React hooks
+│   ├── hooks/                # 自定义 React hooks
 │   ├── styles/
 │   │   └── globals.css
-│   └── types/                # App-level type definitions
+│   └── types/                # 应用级别类型定义
 ├── public/
 ├── package.json
 └── tsconfig.json
 ```
 
-## Component Documentation (IMPORTANT)
-Every component file MUST have a header comment:
+## 组件文档（重要）
+每个组件文件必须有头部注释：
 ```typescript
 /**
  * UserProfile - 用户资料展示组件
@@ -49,78 +49,78 @@ Every component file MUST have a header comment:
  * 交互：点击编辑 → 编辑模式 → 保存 → 触发 onUpdate 回调
  */
 ```
-For complex features, add a data flow summary:
+对于复杂功能，添加数据流总结：
 ```
 数据流：用户输入 → formData → handleSave() → API → 更新 state → onUpdate()
 ```
 
-## Component Structure Order
-Every component follows this order:
-1. Props type definition
-2. Component header comment (as above)
-3. State declarations (with purpose comments)
-4. API calls / data fetching
-5. Side effects (`useEffect`)
-6. Event handlers (prefix with `handle`)
-7. Helper functions
-8. Render logic
+## 组件结构顺序
+每个组件遵循此顺序：
+1. Props 类型定义
+2. 组件头部注释（如上）
+3. State 声明（附带用途注释）
+4. API 调用 / 数据获取
+5. 副作用（`useEffect`）
+6. 事件处理函数（使用 `handle` 前缀）
+7. 辅助函数
+8. 渲染逻辑
 
-## State Annotations
-Always annotate the purpose and source of state:
+## State 标注
+始终标注 state 的用途和来源：
 ```typescript
 const [isOpen, setIsOpen] = useState(false);              // UI state: dialog visibility
 const { data: user } = useQuery(["user", id], fetchUser); // Server state: from /api/users/:id
 const [formData, setFormData] = useState(initialValues);   // Form state: temp editing data
 ```
 
-## Coding Conventions
-- All components: functional + hooks, no class components
-- Named exports only (no `export default` except page files)
-- Co-locate component + types + tests in same directory
-- Use `"use client"` only when client interactivity is needed
-- Components under 200 lines; extract hooks/utils if longer
-- Event handler naming: `handleXxx` (e.g. `handleSave`, `handleDelete`)
+## 编码规范
+- 所有组件: 函数式 + hooks，禁止 class 组件
+- 仅使用命名导出（除了 page 文件外禁止 `export default`）
+- 组件 + 类型 + 测试放在同一目录
+- 仅在需要客户端交互时使用 `"use client"`
+- 组件不超过 200 行；如果更长，提取 hooks/utils
+- 事件处理函数命名: `handleXxx`（例如 `handleSave`, `handleDelete`）
 
-## Styling
-- Tailwind CSS only — no CSS modules, no styled-components, no inline styles
-- Use shadcn/ui as base; customize via Tailwind classes
-- Color scheme: CSS variables in globals.css
-- Responsive: mobile-first (`sm:`, `md:`, `lg:`)
-- Implement accessibility (ARIA labels, keyboard navigation)
+## 样式
+- 仅使用 Tailwind CSS — 禁止 CSS modules、styled-components、inline styles
+- 使用 shadcn/ui 作为基础；通过 Tailwind classes 定制
+- 配色方案: globals.css 中的 CSS 变量
+- 响应式: mobile-first（`sm:`, `md:`, `lg:`）
+- 实现无障碍访问（ARIA labels、键盘导航）
 
-## Data Fetching
-- ALL API calls go through `lib/api.ts`
-- Use types from `lib/api-types.ts` (auto-generated, never hand-edit)
-- Server components fetch directly; client components use TanStack Query
-- Show loading (skeleton) and error states for all async operations
+## 数据获取
+- 所有 API 调用都通过 `lib/api.ts`
+- 使用 `lib/api-types.ts` 中的类型（自动生成，禁止手动编辑）
+- Server 组件直接 fetch；Client 组件使用 TanStack Query
+- 所有异步操作显示加载状态（skeleton）和错误状态
 
-## Forms & Validation
-- Zod schemas mirroring backend Pydantic models
-- react-hook-form for form state management
-- Inline validation errors next to each field
-- Type-safe form data handling
+## 表单与验证
+- Zod schemas 镜像后端 Pydantic models
+- react-hook-form 管理表单状态
+- 每个字段旁边显示内联验证错误
+- 类型安全的表单数据处理
 
-## Performance
-- Use `next/image` for all images
-- Lazy load heavy components with `dynamic()` or `React.lazy()`
-- Minimize `"use client"` — keep as much on server as possible
-- Explain WHY when using `memo` / `useMemo` / `useCallback`
-- Large lists: use virtual scrolling
+## 性能
+- 所有图片使用 `next/image`
+- 使用 `dynamic()` 或 `React.lazy()` 懒加载重型组件
+- 最小化 `"use client"` — 尽可能放在服务端
+- 使用 `memo` / `useMemo` / `useCallback` 时解释为什么
+- 大列表: 使用虚拟滚动
 
-## Business Logic Comments
-Mark non-obvious business rules explicitly:
+## 业务逻辑注释
+明确标记不明显的业务规则：
 ```typescript
 // 业务规则：只有管理员可以删除用户
 if (currentUser.role !== "admin") return;
 ```
-Explain non-obvious design decisions:
+解释不明显的设计决策：
 ```typescript
 // 使用 debounce 防止搜索 API 被频繁调用（每次按键都会触发）
 const debouncedSearch = useMemo(() => debounce(handleSearch, 300), []);
 ```
 
-## Self-Review Checklist (run after completing a component)
-Agent must be able to answer these 8 questions:
+## 自查清单（完成组件后运行）
+Agent 必须能回答这 8 个问题：
 1. 这个组件的业务功能是什么？（文件头注释）
 2. 用户如何与它交互？（事件处理函数）
 3. 调用了哪些 API？（lib/api.ts）
@@ -130,8 +130,8 @@ Agent must be able to answer these 8 questions:
 7. 有没有性能问题？（不必要的重渲染）
 8. 是否符合业务规则？（权限、边界条件）
 
-## DO NOT
-- Manually write types that exist in `api-types.ts`
-- Install new UI libraries without asking (shadcn/ui covers most needs)
-- Use `any` — use `unknown` + type narrowing if truly unknown
-- Leave unused imports
+## 禁止事项
+- 手动编写 `api-types.ts` 中已存在的类型
+- 未经询问安装新的 UI 库（shadcn/ui 覆盖大多数需求）
+- 使用 `any` — 如果真的未知，使用 `unknown` + type narrowing
+- 留下未使用的 imports

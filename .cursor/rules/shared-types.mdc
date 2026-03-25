@@ -1,27 +1,27 @@
 ---
-description: Shared types and API contract conventions
+description: 共享类型与 API 契约规范
 globs: ["shared/**", "frontend/src/lib/api-types.ts", "scripts/sync-api-types.sh"]
 ---
 
-# Shared Types & API Contract Rules
+# 共享类型与 API 契约规范
 
-## Core Principle
-The backend FastAPI is the **single source of truth** for all API types.
-Frontend TypeScript types are **auto-generated** from the OpenAPI spec.
+## 核心原则
+后端 FastAPI 是所有 API 类型的**唯一真实来源**。
+前端 TypeScript 类型从 OpenAPI spec **自动生成**。
 
-## Workflow
-1. Backend developer defines Pydantic schemas in `backend/app/schemas/`
-2. FastAPI exposes `/openapi.json` automatically
-3. Run `./scripts/sync-api-types.sh` to generate `frontend/src/lib/api-types.ts`
-4. Frontend imports types from `api-types.ts` — never defines API types manually
+## 工作流
+1. 后端开发者在 `backend/app/schemas/` 定义 Pydantic schemas
+2. FastAPI 自动暴露 `/openapi.json`
+3. 运行 `./scripts/sync-api-types.sh` 生成 `frontend/src/lib/api-types.ts`
+4. 前端从 `api-types.ts` 导入类型 — 禁止手动定义 API 类型
 
-## Rules
-- `frontend/src/lib/api-types.ts` is AUTO-GENERATED — NEVER edit by hand
-- If you need to change an API type, change the Pydantic schema in backend first
-- After changing any backend schema, remind the user to run the sync script
-- `shared/types/` may contain non-API types shared between front and back (e.g., enums, constants)
+## 规则
+- `frontend/src/lib/api-types.ts` 是自动生成的 — 禁止手动编辑
+- 如果需要修改 API 类型，先修改后端的 Pydantic schema
+- 修改任何后端 schema 后，提醒用户运行同步脚本
+- `shared/types/` 可以包含前后端共享的非 API 类型（例如枚举、常量）
 
-## API Client Pattern
+## API 客户端模式
 ```typescript
 // frontend/src/lib/api.ts
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";

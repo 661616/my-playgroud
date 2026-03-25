@@ -1,109 +1,109 @@
 ---
-description: Python/FastAPI backend conventions
+description: Python/FastAPI 后端规范
 globs: ["backend/**/*.py", "backend/**/*.toml", "backend/**/requirements*.txt"]
 ---
 
-# Backend Python Rules
+# Backend Python 规范
 
-## Tech Stack
+## 技术栈
 - Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async)
-- Package manager: uv (preferred) or pip
-- Formatter: ruff format | Linter: ruff check
+- 包管理器: uv (首选) 或 pip
+- 格式化: ruff format | Linter: ruff check
 
-## Project Structure
+## 项目结构
 ```
 backend/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py              # FastAPI app entry, mount routers
+│   ├── main.py              # FastAPI 应用入口，挂载 routers
 │   ├── core/
-│   │   ├── config.py        # Settings via pydantic-settings
-│   │   ├── deps.py          # Dependency injection (get_db, get_current_user)
-│   │   ├── security.py      # JWT / auth helpers
-│   │   ├── exceptions.py    # Custom exception classes
-│   │   └── logging.py       # Structured logging setup
+│   │   ├── config.py        # 通过 pydantic-settings 管理配置
+│   │   ├── deps.py          # 依赖注入 (get_db, get_current_user)
+│   │   ├── security.py      # JWT / 认证辅助函数
+│   │   ├── exceptions.py    # 自定义异常类
+│   │   └── logging.py       # 结构化日志设置
 │   ├── api/
 │   │   ├── __init__.py
 │   │   └── v1/
 │   │       ├── __init__.py
-│   │       └── users.py     # Router: /api/v1/users
+│   │       └── users.py     # 路由: /api/v1/users
 │   ├── models/
-│   │   └── user.py          # SQLAlchemy ORM models
+│   │   └── user.py          # SQLAlchemy ORM 模型
 │   ├── schemas/
-│   │   └── user.py          # Pydantic request/response schemas
+│   │   └── user.py          # Pydantic 请求/响应 schemas
 │   └── services/
-│       └── user_service.py  # Business logic, called by routers
+│       └── user_service.py  # 业务逻辑，由 routers 调用
 ├── tests/
 │   ├── conftest.py
-│   ├── unit/                 # Unit tests (isolated)
-│   ├── integration/          # DB interaction tests
-│   └── api/                  # Endpoint tests
-├── alembic/                  # DB migrations
+│   ├── unit/                 # 单元测试（隔离的）
+│   ├── integration/          # 数据库交互测试
+│   └── api/                  # 端点测试
+├── alembic/                  # 数据库迁移
 ├── pyproject.toml
 └── requirements.txt
 ```
 
-## Naming Conventions
-- Files: `snake_case` (e.g. `pod_repository.py`)
-- Classes: `PascalCase` (e.g. `PodRepository`)
-- Functions/methods: `snake_case` (e.g. `get_pod_by_id`)
-- Constants: `UPPER_SNAKE_CASE` (e.g. `DEFAULT_STATUS`)
+## 命名规范
+- 文件: `snake_case` (例如 `pod_repository.py`)
+- 类: `PascalCase` (例如 `PodRepository`)
+- 函数/方法: `snake_case` (例如 `get_pod_by_id`)
+- 常量: `UPPER_SNAKE_CASE` (例如 `DEFAULT_STATUS`)
 
-## Coding Conventions
-- Follow PEP8 strictly
-- Use Python 3.12+ syntax features and best practices
-- Balance OOP and functional paradigms — pick whichever is clearer
-- Use type hints on ALL functions, parameters, and return values
-- Write Google-style docstrings for public functions and classes
-- No unnecessary private methods — prefer readability
-- If not needed, don't over-abstract; simple and direct is better
-- Separate routers (api/) → business logic (services/) → DB models (models/)
-- Use dependency injection (`Depends()`) for db sessions, auth, etc.
-- Config via environment variables, loaded through `pydantic-settings`
+## 编码规范
+- 严格遵循 PEP8
+- 使用 Python 3.12+ 语法特性和最佳实践
+- 平衡 OOP 和函数式范式 — 选择更清晰的方式
+- 所有函数、参数、返回值都使用类型提示
+- 公共函数和类使用 Google 风格的 docstrings
+- 避免不必要的私有方法 — 优先可读性
+- 如无必要，不要过度抽象；简单直接更好
+- 分离 routers (api/) → 业务逻辑 (services/) → 数据库模型 (models/)
+- 使用依赖注入 (`Depends()`) 管理 db sessions、认证等
+- 通过环境变量配置，使用 `pydantic-settings` 加载
 
-## Async Programming (MANDATORY)
-- ALL I/O operations: must use `async/await`
-- Database: async drivers + connection pooling (`asyncpg`)
-- HTTP requests: async HTTP client (`httpx.AsyncClient`)
-- External service calls: always async
-- NEVER use synchronous blocking calls in async context
+## 异步编程（强制要求）
+- 所有 I/O 操作: 必须使用 `async/await`
+- 数据库: 异步驱动 + 连接池 (`asyncpg`)
+- HTTP 请求: 异步 HTTP 客户端 (`httpx.AsyncClient`)
+- 外部服务调用: 始终异步
+- 禁止在异步上下文中使用同步阻塞调用
 
-## Security
-- Guard against: memory leaks, circular references, recursion overflow, deadlocks
-- All user input must be validated through Pydantic before processing
-- SQL queries through ORM only — no raw string interpolation
-- Secrets via env vars, never hardcoded
+## 安全
+- 防范: 内存泄漏、循环引用、递归溢出、死锁
+- 所有用户输入必须通过 Pydantic 验证后再处理
+- SQL 查询仅通过 ORM — 禁止原始字符串拼接
+- 密钥通过环境变量，禁止硬编码
 
-## API Design
-- RESTful: `GET /api/v1/users`, `POST /api/v1/users`, etc.
-- Proper HTTP status codes (201 create, 204 delete, 422 validation error)
-- All endpoints return typed Pydantic models (never raw dicts)
-- Pagination: `limit` + `offset` query params
+## API 设计
+- RESTful: `GET /api/v1/users`, `POST /api/v1/users` 等
+- 正确的 HTTP 状态码（201 创建, 204 删除, 422 验证错误）
+- 所有端点返回类型化的 Pydantic 模型（禁止原始字典）
+- 分页: `limit` + `offset` 查询参数
 
-## Error Handling
-- **Validation errors**: Pydantic handles request validation
-- **Database errors**: Handle async connection issues and constraint violations
-- **HTTP errors**: Handle async HTTP request failures with proper retries
-- **Business logic errors**: Raise custom exceptions from `core/exceptions.py`
-- **Logging**: Use structured logging (JSON format) via `core/logging.py`
-- Global exception handler middleware for unexpected errors
+## 错误处理
+- **验证错误**: Pydantic 处理请求验证
+- **数据库错误**: 处理异步连接问题和约束违规
+- **HTTP 错误**: 处理异步 HTTP 请求失败，合理重试
+- **业务逻辑错误**: 抛出 `core/exceptions.py` 中的自定义异常
+- **日志**: 通过 `core/logging.py` 使用结构化日志（JSON 格式）
+- 全局异常处理中间件处理意外错误
 
-## Database
-- Async SQLAlchemy sessions via `async_sessionmaker`
-- Alembic for migrations; never modify DB schema by hand
-- Migration naming: `YYYY_MM_DD_HHMM_description.py`
+## 数据库
+- 通过 `async_sessionmaker` 使用异步 SQLAlchemy sessions
+- Alembic 管理迁移；禁止手动修改数据库 schema
+- 迁移命名: `YYYY_MM_DD_HHMM_description.py`
 
-## Testing
-- **Unit tests**: Isolate and test individual services/utils
-- **Integration tests**: Test async database interactions
-- **API tests**: Test endpoints end-to-end via `httpx.AsyncClient`
-- Use `pytest-asyncio` for all async tests
-- Use factories/fixtures for test data, not hardcoded values
-- Mirror main project structure in `tests/` directory
-- Each test function tests ONE behavior
-- Naming: `test_[feature]_[scenario]_[expected_result]`
+## 测试
+- **单元测试**: 隔离测试单个 services/utils
+- **集成测试**: 测试异步数据库交互
+- **API 测试**: 通过 `httpx.AsyncClient` 端到端测试端点
+- 所有异步测试使用 `pytest-asyncio`
+- 使用工厂/fixtures 生成测试数据，不要硬编码
+- `tests/` 目录镜像主项目结构
+- 每个测试函数测试一个行为
+- 命名: `test_[功能]_[场景]_[预期结果]`
 
 ## OpenAPI
-- FastAPI auto-generates `/openapi.json` — this is the contract with frontend
-- Keep Pydantic schemas well-documented: use `Field(description=...)`
-- Run `scripts/sync-api-types.sh` after changing any schema
+- FastAPI 自动生成 `/openapi.json` — 这是与前端的契约
+- Pydantic schemas 要有良好的文档: 使用 `Field(description=...)`
+- 修改任何 schema 后运行 `scripts/sync-api-types.sh`

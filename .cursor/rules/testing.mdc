@@ -1,25 +1,25 @@
 ---
-description: Testing conventions for both frontend and backend
+description: 前后端测试规范
 globs: ["**/*.test.*", "**/*.spec.*", "**/test_*", "**/conftest.py", "**/tests/**"]
 ---
 
-# Testing Rules
+# 测试规范
 
-## Philosophy
-- Tests verify BEHAVIOR, not implementation details
-- Each test tests ONE thing — name it clearly
-- Test the happy path first, then edge cases, then error cases
+## 理念
+- 测试验证行为，而非实现细节
+- 每个测试只测一件事 — 清晰命名
+- 先测试正常路径，再测边界情况，最后测错误情况
 
-## Backend (pytest)
-- Location: `backend/tests/`
-- Use `httpx.AsyncClient` to test API endpoints end-to-end
-- Use `conftest.py` for shared fixtures (db session, test client, auth headers)
-- Test data: use factory functions, not hardcoded dicts
-- Naming: `test_[feature]_[scenario]_[expected_result]`
-  e.g. `test_create_user_with_duplicate_email_returns_409`
+## 后端 (pytest)
+- 位置: `backend/tests/`
+- 使用 `httpx.AsyncClient` 端到端测试 API endpoints
+- 使用 `conftest.py` 管理共享 fixtures（db session, test client, auth headers）
+- 测试数据: 使用工厂函数，不要硬编码字典
+- 命名: `test_[功能]_[场景]_[预期结果]`
+  例如 `test_create_user_with_duplicate_email_returns_409`
 
 ```python
-# Pattern
+# 模式
 async def test_create_user_success(client: AsyncClient):
     response = await client.post("/api/v1/users", json={"email": "a@b.com", "name": "Test"})
     assert response.status_code == 201
@@ -27,14 +27,14 @@ async def test_create_user_success(client: AsyncClient):
     assert data["email"] == "a@b.com"
 ```
 
-## Frontend (vitest + testing-library)
-- Location: co-located with component (`Button.test.tsx` next to `Button.tsx`)
-- Use `@testing-library/react` for component tests
-- Use `msw` (Mock Service Worker) to mock API calls — never mock fetch directly
-- Test user interactions, not internal state
+## 前端 (vitest + testing-library)
+- 位置: 与组件放在一起（`Button.test.tsx` 在 `Button.tsx` 旁边）
+- 使用 `@testing-library/react` 进行组件测试
+- 使用 `msw` (Mock Service Worker) mock API 调用 — 禁止直接 mock fetch
+- 测试用户交互，而非内部状态
 
 ```typescript
-// Pattern
+// 模式
 it("shows error when login fails", async () => {
   server.use(http.post("/api/v1/auth/login", () => HttpResponse.json({ detail: "Bad credentials" }, { status: 401 })));
   render(<LoginForm />);
@@ -44,13 +44,13 @@ it("shows error when login fails", async () => {
 });
 ```
 
-## When to Write Tests
-- After implementing any API endpoint (backend)
-- After implementing any form or user flow (frontend)
-- When fixing a bug — write a failing test first, then fix
-- Agent should run tests after completing a module and before suggesting commit
+## 何时编写测试
+- 实现任何 API endpoint 后（后端）
+- 实现任何表单或用户流程后（前端）
+- 修复 bug 时 — 先写失败的测试，再修复
+- Agent 应在完成模块后、建议 commit 前运行测试
 
-## When NOT to Write Tests
-- Pure UI styling (no logic)
-- Auto-generated code (api-types.ts)
-- One-off scripts
+## 何时不写测试
+- 纯 UI 样式（无逻辑）
+- 自动生成的代码（api-types.ts）
+- 一次性脚本

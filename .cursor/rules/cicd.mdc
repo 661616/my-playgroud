@@ -1,25 +1,25 @@
 ---
-description: CI/CD and deployment conventions
+description: CI/CD 与部署规范
 globs: [".github/**", "docker-compose*", "Dockerfile*", "Makefile", "scripts/**"]
 ---
 
-# CI/CD Rules
+# CI/CD 规范
 
-## Local Development
-- Use `docker-compose.yml` for local multi-service setup (db, redis, etc.)
-- Backend: `uvicorn app.main:app --reload --port 8000`
-- Frontend: `npm run dev` (Next.js dev server, port 3000)
-- One command to start everything: `make dev` or `docker compose up`
+## 本地开发
+- 使用 `docker-compose.yml` 进行本地多服务设置（db, redis 等）
+- 后端: `uvicorn app.main:app --reload --port 8000`
+- 前端: `npm run dev` (Next.js dev server, port 3000)
+- 一条命令启动所有服务: `make dev` 或 `docker compose up`
 
 ## Docker
-- Each service has its own Dockerfile
-- Use multi-stage builds (builder → runner) to minimize image size
-- Never copy `.env` or secrets into Docker images
-- Pin base image versions (`python:3.12-slim`, not `python:latest`)
+- 每个服务有自己的 Dockerfile
+- 使用多阶段构建（builder → runner）最小化镜像大小
+- 禁止将 `.env` 或密钥复制到 Docker 镜像
+- 固定基础镜像版本（`python:3.12-slim`，不要用 `python:latest`）
 
-## GitHub Actions CI Pipeline
+## GitHub Actions CI 流水线
 ```yaml
-# Suggested .github/workflows/ci.yml structure:
+# 建议的 .github/workflows/ci.yml 结构:
 # on: [push, pull_request]
 # jobs:
 #   backend-lint:    ruff check backend/
@@ -29,20 +29,20 @@ globs: [".github/**", "docker-compose*", "Dockerfile*", "Makefile", "scripts/**"
 #   typecheck:       npm run typecheck (in frontend/)
 ```
 
-## Deployment Checklist
-- [ ] All tests pass
-- [ ] No linter errors
-- [ ] Environment variables documented
-- [ ] Database migrations tested
-- [ ] OpenAPI types synced (frontend matches backend)
-- [ ] Docker images build successfully
+## 部署检查清单
+- [ ] 所有测试通过
+- [ ] 无 linter 错误
+- [ ] 环境变量已文档化
+- [ ] 数据库迁移已测试
+- [ ] OpenAPI 类型已同步（前端匹配后端）
+- [ ] Docker 镜像构建成功
 
-## Environment Variables
-- All config via env vars, never hardcode
-- `.env.example` in repo root with all required vars (values empty or placeholder)
-- Actual `.env` in `.gitignore`
+## 环境变量
+- 所有配置通过环境变量，禁止硬编码
+- 仓库根目录放置 `.env.example`，包含所有必需变量（值为空或占位符）
+- 实际 `.env` 文件在 `.gitignore` 中
 
-## Database Migrations
-- Use Alembic (Python) for schema migrations
-- Always test migration up AND down (rollback)
-- Never edit a migration that's already been applied to production
+## 数据库迁移
+- 使用 Alembic (Python) 进行 schema 迁移
+- 始终测试迁移的正向和回滚（up 和 down）
+- 禁止编辑已应用到生产环境的迁移
